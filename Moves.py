@@ -1,4 +1,4 @@
-memorySpace = [
+games = [
     "cccccc", "cccccd", "ccccdc", "ccccdd", "cccdcc", "cccdcd", "cccddc", "cccddd",
     "ccdccc", "ccdccd", "ccdcdc", "ccdcdd", "ccddcc", "ccddcd", "ccdddc", "ccdddd",
     "cdcccc", "cdcccd", "cdccdc", "cdccdd", "cdcdcc", "cdcdcd", "cdcddc", "cdcddd",

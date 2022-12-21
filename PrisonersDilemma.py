@@ -1,26 +1,26 @@
-def prisonersDilemma(A, B):
+def prisonersDilemma(A, B, runs):
     scoreA = 0
-    scoreB = 0
 
-    for i in range(100):
-        moveA = A.lookup[A.memory]
-        moveB = B.lookup[B.memory]
-        A.memory = str(A.memory[2:] + moveA + moveB)
-        B.memory = str(B.memory[2:] + moveA + moveB)
+    for i in range(runs):
+
+        moveA = A.lookup.get(A.memory)
+        moveB = B.lookup.get(B.memory)
+        A.memory = A.memory[2:] + str(moveA + moveB)
+        B.memory = B.memory[2:] + str(moveA + moveB)
 
         if moveA == moveB:
             if moveA == "c":
-                scoreA += 3
-                scoreB += 3
+                newScoreA = 3
             else:
-                scoreA += 1
-                scoreB += 1
+                newScoreA = 1
         else:
             if moveA == "c":
-                scoreB += 5
+                newScoreA = 0
             else:
-                scoreA += 5
+                newScoreA = 5
 
-        # printPDDetails(moveA, moveB, A, B, scoreA, scoreB)
+        scoreA += newScoreA
 
-    return [scoreA/100, scoreB/100]
+    A.resetMemory()
+    B.resetMemory()
+    return scoreA / runs

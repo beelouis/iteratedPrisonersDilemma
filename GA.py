@@ -2,100 +2,80 @@ import random
 from Strategy import Strategy
 import PrisonersDilemma as pd
 
-def proportionalSelection(objects, C):
-    # stochastically select strategies for next generation based on their fitness
-    sortedObj = sorted(objects, key = lambda x:x.fitness)
-    selected = []
-    for c in range(C):
+def proportionalSelection(P):
+    sortedP = sorted(P, key = lambda p:p.fitness)
+
+    couples = [[0,0] for i in range(round(len(P)/2))]
+    outer = 0
+    inner = 0
+
+    for i in range(len(P)):
         incSum = 0
         r = random.random()
-        for i, obj in enumerate(sortedObj):
-            incSum += obj.propFitness
+        for p in sortedP:
+            incSum += p.propFitness
             if incSum > r:
-                selected.append(obj)
+                outer += 1 if (i % 2 == 0 and i != 0) else 0
+                inner = i % 2
+                couples[outer][inner] = p
                 break
 
-    return selected
-
+    return couples
 # ==========================================
 # ==========================================
 
 
-def crossover(parents):
-    locus = random.randint(0, len(parents[0].string)-1)
+def crossover(couples, Pc):
+    P = []
+    for couple in couples:
+        if random.random() < Pc:
+            locus = random.randint(0, len(couple[0].string)-1)
+            s1 = couple[0].string
+            s2 = couple[1].string
+            couple[0].string = s1[:locus] + s2[locus:]
+            couple[1].string = s2[:locus] + s1[locus:]
+            couple[0].setup()
+            couple[1].setup()
+        P.extend(couple)
 
-    childstrs = [
-        parents[0].string[:locus] + parents[1].string[locus:],
-        parents[1].string[:locus] + parents[0].string[locus:]
-    ]
-
-    children = []
-    for i in range(2):
-        child = Strategy([parents[0].label, parents[1].label])
-        child.string = childstrs[i]
-        child.setup()
-        children.append(child)
-
-    return children
+    return P
 
 # ==========================================
 # ==========================================
 
-def mutation(children, Pm):
-    for child in children:
-        for bit in child.string:
-            if random.random() < Pm:
-                locus = random.randint(0, len(child.string)-1)
-                child.string[locus] = "c" if child.string[locus] == "d" else "d"
-
-    return children
+def mutate(P, Pm):
+    for p in P:
+        modifier = 1
+        for i, gene in enumerate(p.string):
+            if random.random() * modifier < Pm:
+                p.string[i] = "c" if gene == "d" else "d"
+        p.setup()
+    return P
 
 # ==========================================
 # ==========================================
 
-def generation(strategies, Pc, Pm):
-
-    numParents = round(len(strategies) / 2)
-
-    for i, A in enumerate(strategies):
-        for j, B in enumerate(strategies):
-            if j < i:
-                continue
-            scoreAB = pd.prisonersDilemma(A, B)
-            A.scores[j] = scoreAB[0]
-            B.scores[i] = scoreAB[1]
+def generation(P, Opps, genNumber, maxGen, Pc, Pm, ABruns):
+    if genNumber == maxGen:
+        return P
+    print(f"--------------- generation: {genNumber} --------------- ")
+    for A in P:
+        for Opp in Opps:
+            A.score = pd.prisonersDilemma(A, Opp, ABruns)
 
     totalFitness = 0
-    for s in strategies:
-        s.fitness = sum(s.scores) / len(s.scores)
-        totalFitness += s.fitness
+    for p in P:
+        p.fitness = p.score / len(Opps)
+        print(f"{p.label}, {p.fitness}")
+        totalFitness += p.fitness
 
-    for s in strategies:
-        s.propFitness = s.fitness / totalFitness
+    for p in P:
+        p.propFitness = p.fitness / totalFitness
 
-    fittest = proportionalSelection(strategies, numParents)
+    couples = proportionalSelection(P)
+    P = crossover(couples, Pc)
+    P = mutate(P, Pm)
 
-    nextGeneration = []
-    nextGeneration.extend(fittest)
+    print(f"\nTotal Fitness = {totalFitness}\n")
 
-    while(len(nextGeneration) < len(strategies)):
-        couple = proportionalSelection(strategies, 2)
-        print(f"Couple selected: {couple[0].label, couple[1].label}")
-        children = []
-        if random.random() < Pc:
-            children = crossover(couple)
-        else:
-            children = couple
-            for child in children:
-                child.parents = [couple[0].label, couple[1].label]
-
-        children = mutation(children, Pm)
-
-        nextGeneration.extend(children)
-
-    for i, s in enumerate(nextGeneration):
-        s.label = i
-
-    print(f"Fitness for generation: {totalFitness}")
-    # printNextGenerationDetails(nextGeneration)
-    return nextGeneration
+    return generation(P, Opps, genNumber+1, maxGen, Pc, Pm, ABruns)
