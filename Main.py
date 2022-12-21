@@ -18,13 +18,13 @@ def printStrategies(strategies):
 # =========================================
 # =========================================
 
-def initialPopulation(N, lenString, string = []):
+def initialPopulation(N, string = []):
     population = []
     for i in range(N):
         s = Strategy(N)
         s.label = i
         if string == []:
-            s.setRanString(lenString)
+            s.setRanString()
         else:
             s.string = string
         s.setup()
@@ -35,22 +35,21 @@ def initialPopulation(N, lenString, string = []):
 # =========================================
 
 N = 20
-memoryGames = 3
-lenString = 2** ( (memoryGames*len(m.moves)) + (memoryGames*len(m.moves)) )
 Nopp = 1
 G = 50
 ABruns = 100
-Pm = 0.001
+Pm = 0.01
 Pc = 0.7
 
-P = initialPopulation(N, lenString)
+P = initialPopulation(N)
 for p in P:
     print(p.label)
+    print(f"First move: {p.string[0]}")
     for i, g in enumerate(m.games):
         print(f"{g} -> {p.string[i+1]}", end = " | ")
     print("\n")
 
-Opps = initialPopulation(Nopp, lenString, ["c" for i in range(lenString)])
+Opps = initialPopulation(Nopp, ["c", "c", "c", "c", "c"])
 
 print("==========================================================")
 print("==========================================================")
@@ -59,6 +58,7 @@ print("==========================================================")
 finalPopulation = GA.generation(P, Opps, 0, G, Pc, Pm, ABruns)
 for p in finalPopulation:
     print(f"label: {p.label} => {p.score} => {p.fitness} => {p.propFitness}")
+    print(f"start: {p.string[0]}", end = " | ")
     for i, g in enumerate(m.games):
         print(f"{g} -> {p.string[i+1]}", end = " | ")
     print("\n")

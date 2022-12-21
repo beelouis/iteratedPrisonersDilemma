@@ -1,12 +1,14 @@
 def prisonersDilemma(A, B, runs):
     scoreA = 0
+    scoreB = 0
 
     for i in range(runs):
+#         print(f"Past Game: {A.memory}")
 
-        moveA = A.lookup.get(A.memory)
-        moveB = B.lookup.get(B.memory)
-        A.memory = A.memory[2:] + str(moveA + moveB)
-        B.memory = B.memory[2:] + str(moveA + moveB)
+        moveA = A.lookup.get(A.memory, A.firstMove)
+        moveB = B.lookup.get(B.memory, B.firstMove)
+        A.memory = str(moveA + moveB)
+        B.memory = str(moveA + moveB)
 
         if moveA == moveB:
             if moveA == "c":
@@ -21,6 +23,7 @@ def prisonersDilemma(A, B, runs):
 
         scoreA += newScoreA
 
-    A.resetMemory()
-    B.resetMemory()
+#         print(f"Moves: {moveA}, {moveB} => Scores: {newScoreA}\n")
+    A.memory = ""
+    B.memory = ""
     return scoreA / runs

@@ -34,12 +34,9 @@ def crossover(couples, Pc):
             s2 = couple[1].string
             couple[0].string = s1[:locus] + s2[locus:]
             couple[1].string = s2[:locus] + s1[locus:]
-            couple[0].setup()
-            couple[1].setup()
         P.extend(couple)
 
     return P
-
 # ==========================================
 # ==========================================
 
@@ -78,4 +75,5 @@ def generation(P, Opps, genNumber, maxGen, Pc, Pm, ABruns):
 
     print(f"\nTotal Fitness = {totalFitness}\n")
 
-    return generation(P, Opps, genNumber+1, maxGen, Pc, Pm, ABruns)
+    genNumber += 1
+    return generation(P, Opps, genNumber, maxGen, Pc, Pm, ABruns)
